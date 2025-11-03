@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andri Anugrah</title>
+    <title>Sistem Pendukung Keputusan - Weighted Product Model</title>
+    <title> SMA KP Cicalengka </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .kriteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+            color: white;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .result-detail {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .result-detail h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .jurusan-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            background: white;
+            color: #f5576c;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 20px;
+            margin: 15px 0;
+        }
+
+        .small-text {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Andri Anugrah</h1>
+            <p>Sistem Pendukung Keputusan Penentuan Jurusan</p>
+            <p>SMA KP Cicalengka</p>
+        </div>
+
+        <div class="content">
+            <div class="info-box">
+                <h3>📋 Tentang Sistem</h3>
+                <p>Sistem ini menggunakan metode <strong>Weighted Product Model (WPM)</strong> untuk membantu menentukan jurusan yang paling sesuai berdasarkan nilai akademik siswa. Jurusan yang tersedia: <strong>IPA, IPS, dan Bahasa</strong>.</p>
+            </div>
+
+            <form id="spkForm">
+                <div class="form-group">
+                    <label>📝 Nama Siswa</label>
+                    <input type="text" id="namaSiswa" placeholder="Masukkan nama siswa" required>
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: #667eea;">📊 Input Nilai Mata Pelajaran (0-100)</h3>
+                
+                <div class="kriteria-grid">
+                    <div class="form-group">
+                        <label>🔢 Matematika</label>
+                        <input type="number" id="matematika" min="0" max="100" placeholder="0-100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔬 IPA</label>
+                        <input type="number" id="ipa" min="0" max="100" placeholder="0-100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🌍 IPS</label>
+                        <input type="number" id="ips" min="0" max="100" placeholder="0-100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📖 Bahasa Indonesia</label>
+                        <input type="number" id="bahasaIndo" min="0" max="100" placeholder="0-100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🌐 Bahasa Inggris</label>
+                        <input type="number" id="bahasaIng" min="0" max="100" placeholder="0-100" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">🚀 Hitung Rekomendasi Jurusan</button>
+            </form>
+
+            <div id="result" class="result">
+                <h2>✨ Hasil Rekomendasi</h2>
+                <div style="text-align: center;">
+                    <p style="font-size: 16px; margin-bottom: 10px;">Siswa: <strong id="resultNama"></strong></p>
+                    <p style="font-size: 18px;">Jurusan yang Direkomendasikan:</p>
+                    <div class="jurusan-badge" id="resultJurusan"></div>
+                </div>
+
+                <div class="result-detail">
+                    <h3>📈 Skor Vector S (Weighted Product)</h3>
+                    <div id="scoreList"></div>
+                </div>
+
+                <p class="small-text">* Skor dihitung menggunakan metode WPM dengan bobot kriteria yang telah ditentukan</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Bobot kriteria untuk setiap jurusan (disesuaikan dengan karakteristik jurusan)
+        const bobotJurusan = {
+            IPA: {
+                matematika: 0.30,
+                ipa: 0.30,
+                ips: 0.10,
+                bahasaIndo: 0.15,
+                bahasaIng: 0.15
+            },
+            IPS: {
+                matematika: 0.15,
+                ipa: 0.10,
+                ips: 0.30,
+                bahasaIndo: 0.25,
+                bahasaIng: 0.20
+            },
+            Bahasa: {
+                matematika: 0.10,
+                ipa: 0.10,
+                ips: 0.15,
+                bahasaIndo: 0.35,
+                bahasaIng: 0.30
+            }
+        };
+
+        document.getElementById('spkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Ambil data input
+            const nama = document.getElementById('namaSiswa').value;
+            const nilai = {
+                matematika: parseFloat(document.getElementById('matematika').value),
+                ipa: parseFloat(document.getElementById('ipa').value),
+                ips: parseFloat(document.getElementById('ips').value),
+                bahasaIndo: parseFloat(document.getElementById('bahasaIndo').value),
+                bahasaIng: parseFloat(document.getElementById('bahasaIng').value)
+            };
+
+            // Validasi nilai
+            for (let key in nilai) {
+                if (nilai[key] < 0 || nilai[key] > 100) {
+                    alert('Nilai harus antara 0-100!');
+                    return;
+                }
+            }
+
+            // Hitung Vector S untuk setiap jurusan menggunakan WPM
+            const hasilWPM = {};
+            
+            for (let jurusan in bobotJurusan) {
+                let vectorS = 1;
+                const bobot = bobotJurusan[jurusan];
+                
+                // Rumus WPM: S = Π (Xi^Wi) dimana Xi = nilai kriteria, Wi = bobot
+                vectorS *= Math.pow(nilai.matematika, bobot.matematika);
+                vectorS *= Math.pow(nilai.ipa, bobot.ipa);
+                vectorS *= Math.pow(nilai.ips, bobot.ips);
+                vectorS *= Math.pow(nilai.bahasaIndo, bobot.bahasaIndo);
+                vectorS *= Math.pow(nilai.bahasaIng, bobot.bahasaIng);
+                
+                hasilWPM[jurusan] = vectorS;
+            }
+
+            // Cari jurusan dengan skor tertinggi
+            let jurusanTerbaik = '';
+            let skorTertinggi = 0;
+            
+            for (let jurusan in hasilWPM) {
+                if (hasilWPM[jurusan] > skorTertinggi) {
+                    skorTertinggi = hasilWPM[jurusan];
+                    jurusanTerbaik = jurusan;
+                }
+            }
+
+            // Tampilkan hasil
+            document.getElementById('resultNama').textContent = nama;
+            document.getElementById('resultJurusan').textContent = jurusanTerbaik;
+
+            // Tampilkan detail skor
+            let scoreHTML = '';
+            const sortedScores = Object.entries(hasilWPM).sort((a, b) => b[1] - a[1]);
+            
+            sortedScores.forEach(([jurusan, skor]) => {
+                scoreHTML += `
+                    <div class="score-item">
+                        <span><strong>${jurusan}</strong></span>
+                        <span>${skor.toFixed(4)}</span>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('scoreList').innerHTML = scoreHTML;
+
+            // Tampilkan hasil dengan animasi
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.add('show');
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    </script>
+</body>
+</html>
